@@ -96,9 +96,9 @@ func (tx *LinkTX) Commit() error {
 
 func (tx *LinkTX) InsertLink(link Link) (int64, error) {
 	insertSql := "INSERT INTO links (url, short, type,insert_at,update_at) VALUES (:url, :short, :type, :insert_at, :update_at)"
-	result, error := tx.TX.NamedExec(insertSql, link)
-	if error != nil {
-		return 0, error
+	result, err := tx.TX.NamedExec(insertSql, link)
+	if err != nil {
+		return 0, err
 	}
 	return result.LastInsertId()
 }
