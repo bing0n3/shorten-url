@@ -10,23 +10,25 @@ import (
 )
 
 var schema = `
-CREATE TABLE links (
-  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS links (
+  id int(20) unsigned NOT NULL AUTO_INCREMENT,
   url varchar(255) NOT NULL,
   short varchar(255) NOT NULL,
   type varchar(10) NOT NULL,
   insert_at timestamp NULL DEFAULT NULL,
   update_at timestamp NULL DEFAULT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY id (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+  UNIQUE KEY id (id),
+  UNIQUE KEY url (url),
+  UNIQUE KEY short (short) 
+)
 `
 
 type Link struct {
-	ID        int64     `db:"id"`
+	//ID        int64     `db:"id"`
 	Url       string    `db:"url"`
 	Short     string    `db:"short"`
-	custom    string    `db:"type"`
+	Type      string    `db:"type"`
 	INSERT_AT time.Time `db:"insert_at"`
 	UPDATE_AT time.Time `db:"update_at"`
 }
@@ -68,8 +70,9 @@ func (db *LinkDB) Open() error {
 	return nil
 }
 
-func (db *LinkDB) CreateTable() {
-	db.ADB.MustExec(schema)
+func (db *LinkDB) CreateTable() error {
+	_, err := db.ADB.Exec(schema)
+	return err
 }
 
 func (db *LinkDB) GetByUrl(link *Link, url string) error {
@@ -83,11 +86,9 @@ func (db *LinkDB) GetByShort(link *Link, short string) error {
 }
 
 func (db *LinkDB) Begin() (*LinkTX, error) {
-	var oneLinkTX = &LinkTX{}
+	var oneLinkTX = new(LinkTX)
 	var err error
-	if pingErr := db.ADB.Ping(); pingErr != nil {
-		oneLinkTX.TX, err = db.ADB.Beginx()
-	}
+	oneLinkTX.TX, err = db.ADB.Beginx()
 	return oneLinkTX, err
 }
 
