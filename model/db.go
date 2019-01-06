@@ -2,6 +2,7 @@ package model
 
 import (
 	"log"
+	"sync"
 
 	"github.com/bing0n3/shorten-url/config"
 	"github.com/jinzhu/gorm"
@@ -10,12 +11,24 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-var db *gorm.DB
-var counter int64
+type Counter struct {
+	sync.Mutex
+	count int
+}
+
+var (
+	db     *gorm.DB
+	lastID *Counter
+)
 
 // SetDB func
 func SetDB(database *gorm.DB) {
 	db = database
+}
+
+//setCounter func
+func SetCounter(id *Counter) {
+	lastID = id
 }
 
 // ConnectToDB func
@@ -30,10 +43,31 @@ func ConnectToDB() *gorm.DB {
 	return db
 }
 
-// create table if table not exist
+// create table if table not exist func
 func CreateTable() {
-	if !db.HasTable(&URL{}) {
-		log.Println("URL table doesn't exist. Create...")
-		db.CreateTable(&URL{})
+	if !db.HasTable(&Shorten{}) {
+		log.Println("Shorten table doesn't exist. Create...")
+		db.CreateTable(&Shorten{})
 	}
+}
+
+// init
+func InitLastID() *Counter {
+	id, err := GetCounter()
+	log.Printf("Got counter: %d\n", id)
+	if err != nil {
+		log.Println(err)
+		panic("Cannot get counter")
+	}
+	counter := Counter{count: id}
+	return &counter
+}
+
+// update lastID, and return a new id to save
+// self-increasement is atom operate
+func (counter *Counter) UpdateCounter() int {
+	counter.Lock()
+	counter.count++
+	counter.Unlock()
+	return counter.count
 }
