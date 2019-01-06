@@ -1,4 +1,4 @@
-package short
+package model
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
+// CharacterSet consists of 62 characters [0-9][A-Z][a-z].
 var (
-	// CharacterSet consists of 62 characters [0-9][A-Z][a-z].
 	Base         = 62
 	CharacterSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 )
