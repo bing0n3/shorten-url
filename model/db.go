@@ -13,7 +13,7 @@ import (
 
 type Counter struct {
 	sync.Mutex
-	count int
+	count int64
 }
 
 var (
@@ -65,7 +65,7 @@ func InitLastID() *Counter {
 
 // update lastID, and return a new id to save
 // self-increasement is atom operate
-func (counter *Counter) UpdateCounter() int {
+func (counter *Counter) UpdateCounter() int64 {
 	counter.Lock()
 	counter.count++
 	counter.Unlock()

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"errors"
+	"fmt"
 	"math"
 	"strings"
 )
@@ -12,45 +12,36 @@ var (
 	CharacterSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 )
 
-// Encode returns a base62 representation as
-// string of the given integer number.
-func Encode(num int) string {
-	b := make([]byte, 0)
+const (
+	alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	base     = int64(len(alphabet))
+)
 
-	// loop as long the num is bigger than zero
-	for num > 0 {
-		// receive the rest
-		r := math.Mod(float64(num), float64(Base))
-
-		// devide by Base
-		num /= Base
-
-		// append chars
-		b = append([]byte{CharacterSet[int(r)]}, b...)
+// Encode decoded integer to base62 string.
+func Encode(n int64) string {
+	if n == 0 {
+		return "0"
 	}
 
+	b := make([]byte, 0, 512)
+	for n > 0 {
+		r := math.Mod(float64(n), float64(base))
+		n /= base
+		b = append([]byte{alphabet[int(r)]}, b...)
+	}
 	return string(b)
 }
 
-// Decode returns a integer number of a base62 encoded string.
-func Decode(s string) (int, error) {
-	var r, pow int
-
-	// loop through the input
-	for i, v := range s {
-		// convert position to power
-		pow = len(s) - (i + 1)
-
-		// IndexRune returns -1 if v is not part of CharacterSet.
-		pos := strings.IndexRune(CharacterSet, v)
-
-		if pos == -1 {
-			return pos, errors.New("invalid character: " + string(v))
+// Decode a base62 encoded string to int.
+// Returns an error if input s is not valid base62 literal [0-9a-zA-Z].
+func Decode(s string) (int64, error) {
+	var r int64
+	for _, c := range []byte(s) {
+		i := strings.IndexByte(alphabet, c)
+		if i < 0 {
+			return 0, fmt.Errorf("unexpected character %c in base62 literal", c)
 		}
-
-		// calculate
-		r += pos * int(math.Pow(float64(Base), float64(pow)))
+		r = base*r + int64(i)
 	}
-
-	return int(r), nil
+	return r, nil
 }
