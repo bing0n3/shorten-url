@@ -56,7 +56,6 @@ func Short(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	shortURL, stas := model.AddShortenInst(originalURL, custom)
 
 	if stas == model.PARSESCUSSCE {
-		w.WriteHeader(http.StatusOK)
 		shortRes = &ShortRes{OriginalURL: originalURL, ShortURL: shortURL, Custom: customBool}
 		writeOKResponse(w, shortRes)
 	} else if stas == model.SHORTEXIST {

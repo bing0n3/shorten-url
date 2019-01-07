@@ -65,7 +65,12 @@ func AddShortenInst(originalURL string, target string) (string, int) {
 			log.Printf("Decode %s to %d", target, id)
 			now = time.Now()
 			inst = Shorten{ID: id, OriginalURL: originalURL, Short: target, Custom: custom, UpdateAt: &now, InsertAt: &now}
-			db.Create(&inst)
+			err = db.Create(&inst).Error
+			if err != nil {
+				log.Println(err.Error())
+				return "", FAIL
+			}
+			log.Printf("Succesful Write to DB, Oringinal Url: %s, Short Code: %s\n", originalURL, target)
 			return target, PARSESCUSSCE
 		} else {
 			log.Printf("Short Code %s Exist", target)
@@ -79,7 +84,12 @@ func AddShortenInst(originalURL string, target string) (string, int) {
 		inst.CreateShort(id)
 		log.Printf("Insert id: %d", id)
 		if db.First(&Shorten{}, "id= ?", id).RecordNotFound() {
-			db.Create(&inst)
+			err := db.Create(&inst).Error
+			if err != nil {
+				log.Println(err.Error())
+				return "", FAIL
+			}
+			log.Printf("Succesful Write to DB, Oringinal Url: %s, Short Code: %s\n", originalURL, inst.Short)
 			shortURL = inst.Short
 		} else {
 			AddShortenInst(originalURL, target)
