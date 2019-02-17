@@ -50,6 +50,9 @@ func Short(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	// custom := r.FormValue("custom")
 
 	customBool := false
+	if originalURL == "" {
+		return
+	}
 	if custom != "" {
 		customBool = true
 	}
@@ -84,6 +87,7 @@ func writeErrorResponse(w http.ResponseWriter, errorCode int, errorMsg string) {
 func writeOKResponse(w http.ResponseWriter, m interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
 	if err := json.NewEncoder(w).Encode(&JsonResponse{Data: m}); err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, "Internal Server Error")
 	}

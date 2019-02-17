@@ -12,6 +12,7 @@ require (
 	github.com/jinzhu/gorm v1.9.2
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/julienschmidt/httprouter v1.2.0
 	github.com/koding/multiconfig v0.0.0-20171124222453-69c27309b2d7 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/spf13/viper v1.3.1

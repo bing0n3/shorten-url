@@ -1,0 +1,12 @@
+#root {
+  display: flex;
+  align-items: center;
+  height: 400px;
+}
+
+body {
+  background: #dee2e6;
+}
+
+a:link { text-decoration: none}
+
